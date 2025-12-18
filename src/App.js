@@ -9,13 +9,37 @@ import PersonDetails from './PersonDetails';
 import { removeNotification, setPeople } from './actions';
 import './App.css';
 
+// --- French Cities Coordinates ---
+const FRENCH_CITIES = [
+    { city: "Paris", lat: 48.8566, lon: 2.3522 },
+    { city: "Marseille", lat: 43.2965, lon: 5.3698 },
+    { city: "Lyon", lat: 45.7640, lon: 4.8357 },
+    { city: "Toulouse", lat: 43.6047, lon: 1.4442 },
+    { city: "Nice", lat: 43.7102, lon: 7.2620 },
+    { city: "Nantes", lat: 43.6045, lon: 1.444 },
+    { city: "Strasbourg", lat: 47.2184, lon: -1.5536 },
+    { city: "Montpellier", lat: 43.6108, lon: 3.8767 },
+    { city: "Bordeaux", lat: 44.8378, lon: -0.5792 },
+    { city: "Lille", lat: 50.6292, lon: 3.0573 },
+    { city: "Rennes", lat: 48.1173, lon: -1.6778 },
+    { city: "Reims", lat: 48.5734, lon: 7.7521 },
+    { city: "Le Havre", lat: 50.5178, lon: 0.1079 },
+    { city: "Saint-Étienne", lat: 49.2583, lon: 4.0317 },
+    { city: "Toulon", lat: 43.1242, lon: 5.928 },
+];
+
+const getRandomFrenchLocation = () => {
+    return FRENCH_CITIES[Math.floor(Math.random() * FRENCH_CITIES.length)];
+};
+
 // --- Persistance & Store ---
 const saveState = (state) => {
     try {
         const serializedState = JSON.stringify(state);
         localStorage.setItem('contact_app_state', serializedState);
-    } catch (err) { /* Ignore */ }
+    } catch (err) { console.error("Save state failed", err); }
 };
+
 const loadState = () => {
     try {
         const serializedState = localStorage.getItem('contact_app_state');
@@ -23,17 +47,45 @@ const loadState = () => {
         
         const loadedState = JSON.parse(serializedState);
         
+        // --- Data Migration Script ---
+        // Force update coordinates to real French cities
+        if (loadedState.people && loadedState.people.length > 0) {
+            loadedState.people = loadedState.people.map(person => {
+                // Check if coordinates are valid French city coordinates (simple check)
+                const isValid = FRENCH_CITIES.some(c => 
+                    Math.abs(c.lat - parseFloat(person.coordinates?.latitude)) < 0.01 &&
+                    Math.abs(c.lon - parseFloat(person.coordinates?.longitude)) < 0.01
+                );
+
+                if (!isValid) {
+                    const loc = getRandomFrenchLocation();
+                    // Update address to match the city
+                    const street = person.address.split(',')[0]; // Keep street part
+                    return {
+                        ...person,
+                        address: `${street}, ${loc.city}`,
+                        coordinates: { latitude: loc.lat, longitude: loc.lon }
+                    };
+                }
+                return person;
+            });
+        }
+        // --- End Migration ---
+
         return {
             notifications: [],
             theme: 'light',
             ...loadedState
         };
     } catch (err) {
+        console.error("Load state failed", err);
         return undefined;
     }
 };
+
 const persistedState = loadState();
 const store = createStore(rootReducer, persistedState);
+
 store.subscribe(() => {
     saveState({ people: store.getState().people });
 });
@@ -53,22 +105,27 @@ const fetchAndSetUsers = async () => {
         const availableTags = ['Travail', 'Famille', 'Amis', 'Important'];
         const jobs = ["Développeur", "Designer", "Manager", "Commercial", "Consultant"];
 
-        const formattedPeople = data.results.map((user, index) => ({
-            id: user.login.uuid,
-            name: `${user.name.first} ${user.name.last}`,
-            age: user.dob.age,
-            email: user.email,
-            // Replace hyphens with spaces for French format
-            phone: user.phone.replace(/-/g, ' '),
-            job: jobs[Math.floor(Math.random() * jobs.length)],
-            company: "API Corp",
-            address: `${user.location.street.number} ${user.location.street.name}, ${user.location.city}`,
-            notes: "",
-            avatarColor: colors[Math.floor(Math.random() * colors.length)],
-            isFavorite: index < 2,
-            tag: Math.random() > 0.5 ? availableTags[Math.floor(Math.random() * availableTags.length)] : null,
-            picture: user.picture
-        }));
+        const formattedPeople = data.results.map((user, index) => {
+            const loc = getRandomFrenchLocation();
+            
+            return {
+                id: user.login.uuid,
+                name: `${user.name.first} ${user.name.last}`,
+                age: user.dob.age,
+                email: user.email,
+                phone: user.phone.replace(/-/g, ' '),
+                job: jobs[Math.floor(Math.random() * jobs.length)],
+                company: "API Corp",
+                // Use the city from our list, but keep the street from API
+                address: `${user.location.street.number} ${user.location.street.name}, ${loc.city}`,
+                coordinates: { latitude: loc.lat, longitude: loc.lon },
+                notes: "",
+                avatarColor: colors[Math.floor(Math.random() * colors.length)],
+                isFavorite: index < 2,
+                tag: Math.random() > 0.5 ? availableTags[Math.floor(Math.random() * availableTags.length)] : null,
+                picture: user.picture
+            };
+        });
 
         store.dispatch(setPeople(formattedPeople));
     } catch (error) {

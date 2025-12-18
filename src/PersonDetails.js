@@ -86,6 +86,12 @@ function PersonDetails() {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     }
 
+    // Calculate Bounding Box for the map (small area around the point)
+    const lat = parseFloat(person.coordinates?.latitude || 0);
+    const lon = parseFloat(person.coordinates?.longitude || 0);
+    const delta = 0.005; // Zoom level
+    const bbox = `${lon - delta},${lat - delta},${lon + delta},${lat + delta}`;
+
     return (
         <div className="contact-card">
             <Link to="/" className="back-link-mobile">← Retour</Link>
@@ -126,6 +132,21 @@ function PersonDetails() {
                     })}
                 </div>
             </div>
+
+            {person.coordinates && (
+                <div className="contact-info-section">
+                    <h3 className="section-title">Localisation</h3>
+                    <div className="map-container">
+                        <iframe
+                            title="contact-map"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`}
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                </div>
+            )}
 
             <div className="contact-info-section">
                 <h3 className="section-title">Informations Personnelles</h3>

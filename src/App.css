@@ -237,6 +237,18 @@ body {
     font-weight: bold;
 }
 
+.map-container {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-primary);
+}
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+}
+
 
 .action-bar { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-primary); display: flex; justify-content: flex-end; }
 .btn-delete { color: var(--danger-color); background: transparent; border: 1px solid var(--danger-color); cursor: pointer; font-size: 13px; padding: 6px 12px; border-radius: 5px; }
