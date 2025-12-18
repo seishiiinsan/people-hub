@@ -53,7 +53,7 @@ function PersonDetails() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     
-    const person = useSelector(state => state.people.find(p => p.id === id)); // Use UUID string directly
+    const person = useSelector(state => state.people.find(p => p.id === id));
     const favoriteCount = useSelector(state => state.people.filter(p => p.isFavorite).length);
 
     if (!person) { return null; }
@@ -81,11 +81,22 @@ function PersonDetails() {
         dispatch(addNotification('Tag mis à jour'));
     };
 
+    const getInitials = (name) => {
+        if (!name) return '';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
     return (
         <div className="contact-card">
             <Link to="/" className="back-link-mobile">← Retour</Link>
             <div className="contact-header">
-                <img src={person.picture.large} alt={person.name} className="avatar-placeholder" />
+                {person.picture ? (
+                    <img src={person.picture.large} alt={person.name} className="avatar-placeholder" />
+                ) : (
+                    <div className="avatar-placeholder" style={{ backgroundColor: person.avatarColor }}>
+                        {getInitials(person.name)}
+                    </div>
+                )}
                 <input 
                     className="contact-name-large-input" 
                     value={person.name}

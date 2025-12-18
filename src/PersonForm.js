@@ -4,6 +4,14 @@ import { addPerson, addNotification } from './actions';
 
 const ALL_TAGS = ['Travail', 'Famille', 'Amis', 'Important'];
 
+// Simple UUID generator
+const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 function PersonForm({ isOpen, onClose }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -26,7 +34,7 @@ function PersonForm({ isOpen, onClose }) {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
         const newPerson = {
-            id: Date.now(),
+            id: generateUUID(), // Use string UUID
             name,
             email,
             age: '',
@@ -37,7 +45,8 @@ function PersonForm({ isOpen, onClose }) {
             notes: '',
             avatarColor: randomColor,
             isFavorite: false,
-            tag: selectedTag
+            tag: selectedTag,
+            picture: null // No picture for new contacts
         };
 
         dispatch(addPerson(newPerson));

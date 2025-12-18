@@ -184,6 +184,16 @@ body {
     object-fit: cover;
     margin-right: 20px;
     flex-shrink: 0;
+
+    /* Center initials */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 36px; /* Larger font */
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
 }
 .contact-name-large-input { font-size: 28px; font-weight: 600; color: var(--text-primary); border: none; background: transparent; width: 100%; padding: 5px; margin: -5px; border-radius: 5px; }
 .contact-name-large-input:hover, .contact-name-large-input:focus { background-color: var(--bg-hover); outline: none; }
