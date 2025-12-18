@@ -4,6 +4,29 @@ import { NavLink } from 'react-router-dom';
 
 const ALL_TAGS = ['Travail', 'Famille', 'Amis', 'Important'];
 
+const Avatar = ({ person, className }) => {
+    const [imgError, setImgError] = useState(false);
+
+    const handleImageError = () => {
+        setImgError(true);
+    };
+
+    const getInitials = (name) => {
+        if (!name) return '';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    if (person.picture && !imgError) {
+        return <img src={person.picture.thumbnail} alt={person.name} onError={handleImageError} />;
+    }
+
+    return (
+        <div className={className} style={{ backgroundColor: person.avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {getInitials(person.name)}
+        </div>
+    );
+};
+
 function PeopleList({ onAddContact }) {
     const people = useSelector(state => state.people);
     const [searchTerm, setSearchTerm] = useState('');
@@ -46,13 +69,13 @@ function PeopleList({ onAddContact }) {
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
-                    <button className="add-btn" onClick={onAddContact}>+</button>
+                    <button className="add-btn" onClick={onAddContact} aria-label="Ajouter un contact">+</button>
                 </div>
                 {favorites.length > 0 && (
                     <div className="favorites-bar">
                         {favorites.map(p => (
                             <NavLink key={p.id} to={`/person/${p.id}`} className={({isActive}) => "fav-avatar" + (isActive ? " active" : "")}>
-                                <img src={p.picture.thumbnail} alt={p.name} />
+                                <Avatar person={p} className="fav-avatar-initials" />
                             </NavLink>
                         ))}
                     </div>
@@ -76,20 +99,24 @@ function PeopleList({ onAddContact }) {
                 </div>
             </div>
             <nav className="people-list">
-                {Object.keys(groupedPeople).map(letter => (
-                    <div key={letter} className="group-section">
-                        <div className="group-header">{letter}</div>
-                        <ul>
-                            {groupedPeople[letter].map(p => (
-                                <li key={p.id}>
-                                    <NavLink to={`/person/${p.id}`} className={({ isActive }) => "contact-item" + (isActive ? " active" : "")}>
-                                        <span className="contact-name">{p.name}</span>
-                                    </NavLink>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
+                {Object.keys(groupedPeople).length > 0 ? (
+                    Object.keys(groupedPeople).map(letter => (
+                        <div key={letter} className="group-section">
+                            <div className="group-header">{letter}</div>
+                            <ul>
+                                {groupedPeople[letter].map(p => (
+                                    <li key={p.id}>
+                                        <NavLink to={`/person/${p.id}`} className={({ isActive }) => "contact-item" + (isActive ? " active" : "")}>
+                                            <span className="contact-name">{p.name}</span>
+                                        </NavLink>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                ) : (
+                    <div className="empty-list-message">Aucun contact trouvé.</div>
+                )}
             </nav>
         </>
     );

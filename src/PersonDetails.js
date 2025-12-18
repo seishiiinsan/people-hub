@@ -48,6 +48,30 @@ function EditableField({ label, value, field, personId, type = 'input', validate
 
 const ALL_TAGS = ['Travail', 'Famille', 'Amis', 'Important'];
 
+const Avatar = ({ person, className }) => {
+    const [imgError, setImgError] = useState(false);
+
+    const handleImageError = () => {
+        setImgError(true);
+    };
+
+    const getInitials = (name) => {
+        if (!name) return '';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    if (person.picture && !imgError) {
+        return <img src={person.picture.large} alt={person.name} className={className} onError={handleImageError} />;
+    }
+
+    return (
+        <div className={className} style={{ backgroundColor: person.avatarColor }}>
+            {getInitials(person.name)}
+        </div>
+    );
+};
+
+
 function PersonDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -81,11 +105,6 @@ function PersonDetails() {
         dispatch(addNotification('Tag mis à jour'));
     };
 
-    const getInitials = (name) => {
-        if (!name) return '';
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
-    }
-
     // Calculate Bounding Box for the map (small area around the point)
     const lat = parseFloat(person.coordinates?.latitude || 0);
     const lon = parseFloat(person.coordinates?.longitude || 0);
@@ -96,20 +115,14 @@ function PersonDetails() {
         <div className="contact-card">
             <Link to="/" className="back-link-mobile">← Retour</Link>
             <div className="contact-header">
-                {person.picture ? (
-                    <img src={person.picture.large} alt={person.name} className="avatar-placeholder" />
-                ) : (
-                    <div className="avatar-placeholder" style={{ backgroundColor: person.avatarColor }}>
-                        {getInitials(person.name)}
-                    </div>
-                )}
+                <Avatar person={person} className="avatar-placeholder" />
                 <input 
                     className="contact-name-large-input" 
                     value={person.name}
                     onChange={(e) => dispatch(updatePerson(person.id, { name: e.target.value }))}
                     onBlur={() => dispatch(addNotification('Contact sauvegardé'))}
                 />
-                <button className="favorite-btn" onClick={handleToggleFavorite}>
+                <button className="favorite-btn" onClick={handleToggleFavorite} aria-label="Mettre en favori">
                     {person.isFavorite ? <span className="star-filled">★</span> : <span className="star-outline">☆</span>}
                 </button>
             </div>

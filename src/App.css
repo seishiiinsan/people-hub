@@ -124,7 +124,7 @@ body {
     border: 2px solid transparent;
     overflow: hidden; /* Ensures the image inside is clipped */
 }
-.fav-avatar img {
+.fav-avatar img, .fav-avatar-initials {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Cover the area without distortion */
@@ -167,6 +167,12 @@ body {
 .contact-item:hover { background-color: var(--bg-hover); }
 .contact-item.active { background-color: var(--accent-color); color: var(--accent-text); }
 .contact-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.empty-list-message {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
 
 /* --- Main Content (Right Pane) --- */
 .main-content { flex: 1; background-color: var(--bg-primary); overflow-y: auto; display: flex; flex-direction: column; }
@@ -277,7 +283,16 @@ body {
     .sidebar { width: 100%; border-right: none; transition: transform 0.3s ease-in-out; position: absolute; height: 100%; }
     .main-content { width: 100%; position: absolute; height: 100%; transform: translateX(100%); transition: transform 0.3s ease-in-out; }
     .contact-card { padding: 20px; }
-    .back-link-mobile { display: block; margin-bottom: 20px; color: var(--accent-color); text-decoration: none; font-weight: 500; }
+    .back-link-mobile {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 500;
+        background-color: var(--bg-secondary);
+        padding: 8px 14px;
+        border-radius: 8px;
+    }
     .app-container.show-detail .sidebar { transform: translateX(-100%); }
     .app-container.show-detail .main-content { transform: translateX(0); }
 }
