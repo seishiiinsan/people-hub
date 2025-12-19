@@ -6,6 +6,7 @@ import rootReducer from './reducers';
 import PeopleList from './PeopleList';
 import PersonForm from './PersonForm';
 import PersonDetails from './PersonDetails';
+import Dashboard from './Dashboard';
 import { removeNotification, setPeople } from './actions';
 import './App.css';
 
@@ -48,10 +49,8 @@ const loadState = () => {
         const loadedState = JSON.parse(serializedState);
         
         // --- Data Migration Script ---
-        // Force update coordinates to real French cities
         if (loadedState.people && loadedState.people.length > 0) {
             loadedState.people = loadedState.people.map(person => {
-                // Check if coordinates are valid French city coordinates (simple check)
                 const isValid = FRENCH_CITIES.some(c => 
                     Math.abs(c.lat - parseFloat(person.coordinates?.latitude)) < 0.01 &&
                     Math.abs(c.lon - parseFloat(person.coordinates?.longitude)) < 0.01
@@ -59,8 +58,7 @@ const loadState = () => {
 
                 if (!isValid) {
                     const loc = getRandomFrenchLocation();
-                    // Update address to match the city
-                    const street = person.address.split(',')[0]; // Keep street part
+                    const street = person.address.split(',')[0];
                     return {
                         ...person,
                         address: `${street}, ${loc.city}`,
@@ -92,7 +90,6 @@ store.subscribe(() => {
 
 // --- API Call ---
 const fetchAndSetUsers = async () => {
-    // Only fetch if the user list is empty (on first load)
     if (store.getState().people && store.getState().people.length > 0) {
         return;
     }
@@ -116,7 +113,6 @@ const fetchAndSetUsers = async () => {
                 phone: user.phone.replace(/-/g, ' '),
                 job: jobs[Math.floor(Math.random() * jobs.length)],
                 company: "API Corp",
-                // Use the city from our list, but keep the street from API
                 address: `${user.location.street.number} ${user.location.street.name}, ${loc.city}`,
                 coordinates: { latitude: loc.lat, longitude: loc.lon },
                 notes: "",
@@ -152,16 +148,14 @@ const AppLayout = () => {
     const isDetailView = location.pathname.startsWith('/person/');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Theme management
     useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = () => document.documentElement.setAttribute('data-theme', mediaQuery.matches ? 'dark' : 'light');
         mediaQuery.addEventListener('change', handleChange);
-        handleChange(); // Initial check
+        handleChange();
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Fetch users on initial load
     useEffect(() => {
         fetchAndSetUsers();
     }, []);
@@ -174,7 +168,7 @@ const AppLayout = () => {
                 </aside>
                 <main className="main-content">
                     <Routes>
-                        <Route path="/" element={<div className="empty-selection">Sélectionnez un contact</div>} />
+                        <Route path="/" element={<Dashboard />} />
                         <Route path="/person/:id" element={<PersonDetails />} />
                     </Routes>
                 </main>

@@ -60,6 +60,11 @@ function PeopleList({ onAddContact }) {
 
     return (
         <>
+            <div className="sidebar-top-bar">
+                <NavLink to="/" className={({isActive}) => "dashboard-btn" + (isActive ? " active" : "")} aria-label="Tableau de bord">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3,13H11V3H3M3,21H11V15H3M13,21H21V11H13M13,3V9H21V3"/></svg>
+                </NavLink>
+            </div>
             <div className="sidebar-header">
                 <div className="header-row">
                     <input 
