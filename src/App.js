@@ -51,21 +51,36 @@ const loadState = () => {
         // --- Data Migration Script ---
         if (loadedState.people && loadedState.people.length > 0) {
             loadedState.people = loadedState.people.map(person => {
+                // Migration 1: Fix coordinates
                 const isValid = FRENCH_CITIES.some(c => 
                     Math.abs(c.lat - parseFloat(person.coordinates?.latitude)) < 0.01 &&
                     Math.abs(c.lon - parseFloat(person.coordinates?.longitude)) < 0.01
                 );
 
+                let updatedPerson = { ...person };
+
                 if (!isValid) {
                     const loc = getRandomFrenchLocation();
                     const street = person.address.split(',')[0];
-                    return {
-                        ...person,
+                    updatedPerson = {
+                        ...updatedPerson,
                         address: `${street}, ${loc.city}`,
                         coordinates: { latitude: loc.lat, longitude: loc.lon }
                     };
                 }
-                return person;
+                
+                // Migration 2: Ensure birthDate exists (generate random if missing)
+                if (!updatedPerson.birthDate) {
+                    const randomAge = updatedPerson.age || 30;
+                    const today = new Date();
+                    const birthYear = today.getFullYear() - randomAge;
+                    const randomMonth = Math.floor(Math.random() * 12);
+                    const randomDay = Math.floor(Math.random() * 28) + 1;
+                    const date = new Date(birthYear, randomMonth, randomDay);
+                    updatedPerson.birthDate = date.toISOString();
+                }
+
+                return updatedPerson;
             });
         }
         // --- End Migration ---
@@ -95,7 +110,7 @@ const fetchAndSetUsers = async () => {
     }
 
     try {
-        const response = await fetch('https://randomuser.me/api/?results=50&nat=fr');
+        const response = await fetch('https://randomuser.me/api/?results=150&nat=fr');
         const data = await response.json();
         
         const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#F1948A", "#82E0AA", "#85C1E9"];
@@ -109,6 +124,7 @@ const fetchAndSetUsers = async () => {
                 id: user.login.uuid,
                 name: `${user.name.first} ${user.name.last}`,
                 age: user.dob.age,
+                birthDate: user.dob.date, // Store birth date
                 email: user.email,
                 phone: user.phone.replace(/-/g, ' '),
                 job: jobs[Math.floor(Math.random() * jobs.length)],
