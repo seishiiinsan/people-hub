@@ -6,6 +6,7 @@ import rootReducer from './reducers';
 import PeopleList from './PeopleList';
 import PersonForm from './PersonForm';
 import PersonDetails from './PersonDetails';
+import Dashboard from './Dashboard';
 import { removeNotification, setPeople } from './actions';
 import './App.css';
 
@@ -48,26 +49,38 @@ const loadState = () => {
         const loadedState = JSON.parse(serializedState);
         
         // --- Data Migration Script ---
-        // Force update coordinates to real French cities
         if (loadedState.people && loadedState.people.length > 0) {
             loadedState.people = loadedState.people.map(person => {
-                // Check if coordinates are valid French city coordinates (simple check)
+                // Migration 1: Fix coordinates
                 const isValid = FRENCH_CITIES.some(c => 
                     Math.abs(c.lat - parseFloat(person.coordinates?.latitude)) < 0.01 &&
                     Math.abs(c.lon - parseFloat(person.coordinates?.longitude)) < 0.01
                 );
 
+                let updatedPerson = { ...person };
+
                 if (!isValid) {
                     const loc = getRandomFrenchLocation();
-                    // Update address to match the city
-                    const street = person.address.split(',')[0]; // Keep street part
-                    return {
-                        ...person,
+                    const street = person.address.split(',')[0];
+                    updatedPerson = {
+                        ...updatedPerson,
                         address: `${street}, ${loc.city}`,
                         coordinates: { latitude: loc.lat, longitude: loc.lon }
                     };
                 }
-                return person;
+                
+                // Migration 2: Ensure birthDate exists (generate random if missing)
+                if (!updatedPerson.birthDate) {
+                    const randomAge = updatedPerson.age || 30;
+                    const today = new Date();
+                    const birthYear = today.getFullYear() - randomAge;
+                    const randomMonth = Math.floor(Math.random() * 12);
+                    const randomDay = Math.floor(Math.random() * 28) + 1;
+                    const date = new Date(birthYear, randomMonth, randomDay);
+                    updatedPerson.birthDate = date.toISOString();
+                }
+
+                return updatedPerson;
             });
         }
         // --- End Migration ---
@@ -92,13 +105,12 @@ store.subscribe(() => {
 
 // --- API Call ---
 const fetchAndSetUsers = async () => {
-    // Only fetch if the user list is empty (on first load)
     if (store.getState().people && store.getState().people.length > 0) {
         return;
     }
 
     try {
-        const response = await fetch('https://randomuser.me/api/?results=50&nat=fr');
+        const response = await fetch('https://randomuser.me/api/?results=150&nat=fr');
         const data = await response.json();
         
         const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#F1948A", "#82E0AA", "#85C1E9"];
@@ -112,11 +124,11 @@ const fetchAndSetUsers = async () => {
                 id: user.login.uuid,
                 name: `${user.name.first} ${user.name.last}`,
                 age: user.dob.age,
+                birthDate: user.dob.date, // Store birth date
                 email: user.email,
                 phone: user.phone.replace(/-/g, ' '),
                 job: jobs[Math.floor(Math.random() * jobs.length)],
                 company: "API Corp",
-                // Use the city from our list, but keep the street from API
                 address: `${user.location.street.number} ${user.location.street.name}, ${loc.city}`,
                 coordinates: { latitude: loc.lat, longitude: loc.lon },
                 notes: "",
@@ -152,16 +164,14 @@ const AppLayout = () => {
     const isDetailView = location.pathname.startsWith('/person/');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Theme management
     useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = () => document.documentElement.setAttribute('data-theme', mediaQuery.matches ? 'dark' : 'light');
         mediaQuery.addEventListener('change', handleChange);
-        handleChange(); // Initial check
+        handleChange();
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Fetch users on initial load
     useEffect(() => {
         fetchAndSetUsers();
     }, []);
@@ -174,7 +184,7 @@ const AppLayout = () => {
                 </aside>
                 <main className="main-content">
                     <Routes>
-                        <Route path="/" element={<div className="empty-selection">Sélectionnez un contact</div>} />
+                        <Route path="/" element={<Dashboard />} />
                         <Route path="/person/:id" element={<PersonDetails />} />
                     </Routes>
                 </main>

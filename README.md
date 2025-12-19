@@ -1,37 +1,52 @@
-# Gestion de Personnes - Répertoire v1.0.0
+# Gestion de Personnes - CRM v2.0.0
 
-Une application de gestion de contacts moderne et responsive, inspirée par l'application Contacts de macOS.
+Une application de gestion de relation client (CRM) moderne, responsive et intelligente, conçue pour simplifier la gestion de vos contacts.
 
-## 🚀 Fonctionnalités
+## 🚀 Nouveautés de la v2.0.0
+
+### 📊 Le Cockpit (Dashboard)
+Un tableau de bord complet pour piloter votre activité :
+*   **KPIs en temps réel** : Suivez le nombre total de contacts, l'âge moyen, et le taux de complétion des profils.
+*   **Anniversaires** : Ne manquez jamais une occasion ! Liste des anniversaires à venir dans les 30 jours avec compte à rebours.
+*   **Analyses** : Graphiques de répartition par tags et pyramide des âges.
+*   **Activité** : Accès rapide aux derniers contacts ajoutés.
+
+### ✨ Magic Paste (IA)
+Ajoutez des contacts à la vitesse de l'éclair :
+*   Collez simplement une signature d'email ou une bio LinkedIn dans la zone dédiée.
+*   L'application détecte et extrait automatiquement le **Nom** et l'**Email**.
+
+### 🌍 Données Réalistes & Géolocalisation
+*   **API Connectée** : Initialisation avec 50 profils français réalistes via l'API RandomUser.
+*   **Cartographie** : Intégration d'OpenStreetMap pour visualiser la localisation exacte de chaque contact.
+*   **Vrais Avatars** : Photos de profil haute qualité pour une expérience plus humaine.
+
+---
+
+## 🛠 Fonctionnalités Principales
 
 ### 🎨 Interface & UX
-*   **Design MacOS** : Interface épurée à deux volets (Liste / Détails).
-*   **Responsive** : Adaptation mobile fluide avec navigation par glissement.
-*   **Mode Sombre** : Support natif du Dark Mode (détection système).
-*   **Notifications** : Système de "Toasts" pour confirmer les actions (sauvegarde, suppression, etc.).
+*   **Design Épuré** : Interface "Flat" moderne avec support natif du **Mode Sombre**.
+*   **Responsive** : Expérience fluide sur mobile, tablette et desktop.
+*   **Navigation** : Barre latérale avec recherche instantanée et filtres par tags.
 
 ### 👥 Gestion des Contacts
-*   **Données Réelles** : Initialisation avec 50 profils français via l'API RandomUser (Photos, Adresses, etc.).
-*   **CRUD Complet** : Ajouter, Modifier (tous les champs), et Supprimer des contacts.
-*   **Validation** : Vérification en temps réel des formats d'email et de téléphone.
-*   **Persistance** : Sauvegarde automatique des données dans le `localStorage`.
+*   **CRUD Complet** : Création, Lecture, Mise à jour, Suppression.
+*   **Validation** : Contrôle en temps réel des formats (Email, Téléphone).
+*   **Tags** : Catégorisation simple et efficace (Travail, Famille, Amis, Important).
+*   **Favoris** : Accès prioritaire à vos contacts clés.
 
-### 🔍 Organisation
-*   **Recherche** : Filtrage en temps réel par nom, email ou entreprise.
-*   **Tri Alphabétique** : Groupement automatique des contacts par lettre (A, B, C...).
-*   **Favoris** : Gestion des favoris (max 3) affichés en haut de la liste avec leurs avatars.
-*   **Tags** : Système de catégorisation (Travail, Famille, Amis, Important) avec filtrage.
-
-## 🛠 Stack Technique
-
-*   **Frontend** : React 18
-*   **State Management** : Redux (avec persistance locale)
-*   **Routing** : React Router v6
-*   **Styling** : CSS3 pur avec Variables CSS (Custom Properties) pour le theming.
+### 💾 Technique
+*   **Persistance** : Sauvegarde automatique locale (`localStorage`).
+*   **Architecture** : React 18 + Redux (State Management).
+*   **Performance** : Optimisation des rendus et gestion efficace des listes.
 
 ## 📦 Installation
 
-1.  Cloner le projet.
+1.  Cloner le projet :
+    ```bash
+    git clone https://github.com/votre-repo/gestion-personnes.git
+    ```
 2.  Installer les dépendances :
     ```bash
     npm install
@@ -41,5 +56,10 @@ Une application de gestion de contacts moderne et responsive, inspirée par l'ap
     npm start
     ```
 
+## 🔮 Roadmap (v3.0.0)
+*   Export / Import CSV
+*   Historique des modifications
+*   Synchronisation Cloud
+
 ---
-*v1.0.0 - Développé avec passion.*
+*Développé avec passion - v2.0.0*
